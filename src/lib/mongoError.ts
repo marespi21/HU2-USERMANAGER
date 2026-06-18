@@ -1,4 +1,4 @@
-// Traduce errores técnicos de MongoDB a mensajes fáciles de entender
+/* Traduce errores técnicos de MongoDB a mensajes fáciles de entender*/
 export function mensajeErrorMongo(error: unknown): string {
   const mensaje =
     error instanceof Error ? error.message : String(error);
