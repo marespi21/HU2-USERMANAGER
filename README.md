@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# User Manager
 
-## Getting Started
+App web para la historia de usuario de gestión de usuarios.  
+Login, dashboard protegido, CRUD de usuarios y correo de bienvenida.
 
-First, run the development server:
+Stack: **Next.js** (App Router), **MongoDB Atlas**, **Mongoose**, **bcrypt** y **Nodemailer**.
+
+---
+
+## Qué incluye
+
+- `/login` — inicio de sesión (valida contra MongoDB, guarda sesión en `localStorage`)
+- `/register` — registro de usuarios nuevos (rol `user`)
+- `/dashboard` — datos del usuario logueado
+- `/admin/users` — crear, listar, editar y eliminar usuarios (solo `admin`)
+- API Routes en `src/app/api/`
+- Capa de servicios en `src/services/` (las vistas no llaman `fetch` directo)
+
+---
+
+## Requisitos
+
+- Node.js 18 o superior
+- Cuenta en [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+- Gmail con App Password (opcional, para los correos)
+
+---
+
+## Instalación
+
+```bash
+npm install
+cp env.example .env
+```
+
+Edita `.env` con tus datos. Si te pierdes con Atlas o Gmail, revisa `GUIA.md`.
+
+Variables que necesitas:
+
+```
+MONGODB_URI=...
+EMAIL_USER=...
+EMAIL_PASS=...
+```
+
+Levantar el proyecto:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Primer usuario admin
 
-## Learn More
+Registrarte en `/register` crea un `user`, no un admin.  
+Para el panel de administración, crea un admin así (con el servidor corriendo):
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+curl -X POST http://localhost:3000/api/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "Admin",
+    "cc": "123456789",
+    "email": "admin@test.com",
+    "password": "admin123",
+    "role": "admin"
+  }'
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Después entra en `/login` con ese email y contraseña.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Estructura
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+  app/           páginas y rutas de API
+  components/    UserCard, etc.
+  services/      authService, userService
+  lib/           mongodb, session, email
+  models/        User (Mongoose)
+  types/         tipos de TypeScript
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Deploy en Vercel
+
+1. Subir el repo a GitHub
+2. Importar en [vercel.com](https://vercel.com)
+3. Poner las mismas variables del `.env` en Environment Variables
+4. Deploy
+5. Crear el admin con el mismo `curl` pero apuntando a tu URL de Vercel
+
+---
+
+## Notas
+
+- Las contraseñas se guardan hasheadas con bcrypt
+- La sesión del login va en `localStorage` con la clave `user`
+- No subir el `.env` al repositorio
